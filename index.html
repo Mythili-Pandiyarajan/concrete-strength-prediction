@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Concrete Strength Predictor</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: 50px auto; padding: 20px; }
+        h1 { color: #333; }
+        input { width: 100%; padding: 8px; margin: 5px 0 15px; box-sizing: border-box; }
+        button { background: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer; width: 100%; }
+        .result { margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Concrete Compressive Strength Predictor</h1>
+    
+    <form action="/predict" method="POST">
+        <label>Cement (kg/m3)</label>
+        <input type="number" name="cement" placeholder="e.g. 300" step="0.01" required>
+        
+        <label>Blast Furnace Slag (kg/m3)</label>
+        <input type="number" name="slag" placeholder="e.g. 100" step="0.01" required>
+        
+        <label>Fly Ash (kg/m3)</label>
+        <input type="number" name="ash" placeholder="e.g. 50" step="0.01" required>
+        
+        <label>Water (kg/m3)</label>
+        <input type="number" name="water" placeholder="e.g. 180" step="0.01" required>
+        
+        <label>Superplasticizer (kg/m3)</label>
+        <input type="number" name="superplastic" placeholder="e.g. 10" step="0.01" required>
+        
+        <label>Coarse Aggregate (kg/m3)</label>
+        <input type="number" name="coarseagg" placeholder="e.g. 970" step="0.01" required>
+        
+        <label>Fine Aggregate (kg/m3)</label>
+        <input type="number" name="fineagg" placeholder="e.g. 800" step="0.01" required>
+        
+        <label>Age (days)</label>
+        <input type="number" name="age" placeholder="e.g. 28" required>
+        
+        <button type="submit">Predict Strength</button>
+    </form>
+    
+    {% if prediction %}
+    <div class="result">
+        <h3>Predicted Compressive Strength: {{ prediction }} MPa</h3>
+    </div>
+    {% endif %}
+</body>
+</html>
