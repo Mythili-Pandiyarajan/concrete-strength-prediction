@@ -69,17 +69,11 @@ Concrete compressive strength testing in civil engineering requires 28 days of p
 
 ## 📁 Project Structure
 ├── app.py                  # Flask application
-
 ├── concrete_model.pkl      # Trained XGBoost model
-
 ├── concrete_scaler.pkl     # StandardScaler
-
 ├── requirements.txt        # Dependencies
-
 ├── templates/
-
 │   └── index.html          # Frontend UI
-
 └── concrete_strength_prediction.ipynb  # Full notebook
 
 ---
