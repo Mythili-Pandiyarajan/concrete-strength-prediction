@@ -1,50 +1,529 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Concrete Strength Predictor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concrete Strength Estimator</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial; max-width: 600px; margin: 50px auto; padding: 20px; }
-        h1 { color: #333; }
-        input { width: 100%; padding: 8px; margin: 5px 0 15px; box-sizing: border-box; }
-        button { background: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer; width: 100%; }
-        .result { margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px; }
+        :root {
+            --bg: #0f0f0f;
+            --surface: #1a1a1a;
+            --surface2: #222222;
+            --border: #2e2e2e;
+            --accent: #e8c547;
+            --accent2: #f0d875;
+            --text: #f0ede8;
+            --text-muted: #888;
+            --green: #4caf82;
+            --orange: #e8824a;
+            --red: #e85a4a;
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at 20% 20%, rgba(232,197,71,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(76,175,130,0.03) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            animation: fadeUp 0.6s ease both;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(232,197,71,0.12);
+            border: 1px solid rgba(232,197,71,0.3);
+            color: var(--accent);
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            padding: 6px 14px;
+            border-radius: 99px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: clamp(28px, 5vw, 44px);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+        }
+
+        h1 span { color: var(--accent); }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: 400;
+            max-width: 480px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Stats bar */
+        .stats-bar {
+            display: flex;
+            gap: 1px;
+            background: var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 40px;
+            animation: fadeUp 0.6s 0.1s ease both;
+        }
+
+        .stat {
+            flex: 1;
+            background: var(--surface);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'DM Mono', monospace;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 4px;
+        }
+
+        /* Main layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            animation: fadeUp 0.6s 0.2s ease both;
+        }
+
+        @media (max-width: 640px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+
+        .card-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title::before {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        /* Form */
+        .field {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(232,197,71,0.1);
+        }
+
+        input[type="number"]::placeholder { color: #444; }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+        button {
+            width: 100%;
+            background: var(--accent);
+            color: #0f0f0f;
+            border: none;
+            border-radius: 8px;
+            padding: 13px;
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: background 0.2s, transform 0.1s;
+            text-transform: uppercase;
+        }
+
+        button:hover { background: var(--accent2); transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+
+        /* Result panel */
+        .result-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .result-main {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .result-value {
+            font-size: 52px;
+            font-weight: 800;
+            font-family: 'DM Mono', monospace;
+            line-height: 1;
+            color: var(--accent);
+        }
+
+        .result-unit {
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .result-empty {
+            color: var(--text-muted);
+            font-size: 13px;
+            text-align: center;
+        }
+
+        /* Grade indicator */
+        .grade-bar {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 20px;
+        }
+
+        .grade-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .grade-track {
+            height: 6px;
+            background: var(--border);
+            border-radius: 99px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .grade-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(90deg, #e85a4a, #e8824a, #e8c547, #4caf82);
+        }
+
+        .grade-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: 'DM Mono', monospace;
+        }
+
+        /* Grade badge */
+        .grade-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 10px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .grade-weak { background: rgba(232,90,74,0.15); color: #e85a4a; border: 1px solid rgba(232,90,74,0.3); }
+        .grade-moderate { background: rgba(232,130,74,0.15); color: #e8824a; border: 1px solid rgba(232,130,74,0.3); }
+        .grade-standard { background: rgba(232,197,71,0.15); color: #e8c547; border: 1px solid rgba(232,197,71,0.3); }
+        .grade-strong { background: rgba(76,175,130,0.15); color: #4caf82; border: 1px solid rgba(76,175,130,0.3); }
+
+        /* Info cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .info-item {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .info-key {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-family: 'DM Mono', monospace;
+            margin-bottom: 4px;
+        }
+
+        .info-val {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-family: 'DM Mono', monospace;
+            animation: fadeUp 0.6s 0.3s ease both;
+        }
+
+        .footer span { color: var(--accent); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 12px 0;
+        }
     </style>
 </head>
 <body>
-    <h1>Concrete Compressive Strength Predictor</h1>
-    
-    <form action="/predict" method="POST">
-        <label>Cement (kg/m3)</label>
-        <input type="number" name="cement" placeholder="e.g. 300" step="0.01" required>
-        
-        <label>Blast Furnace Slag (kg/m3)</label>
-        <input type="number" name="slag" placeholder="e.g. 100" step="0.01" required>
-        
-        <label>Fly Ash (kg/m3)</label>
-        <input type="number" name="ash" placeholder="e.g. 50" step="0.01" required>
-        
-        <label>Water (kg/m3)</label>
-        <input type="number" name="water" placeholder="e.g. 180" step="0.01" required>
-        
-        <label>Superplasticizer (kg/m3)</label>
-        <input type="number" name="superplastic" placeholder="e.g. 10" step="0.01" required>
-        
-        <label>Coarse Aggregate (kg/m3)</label>
-        <input type="number" name="coarseagg" placeholder="e.g. 970" step="0.01" required>
-        
-        <label>Fine Aggregate (kg/m3)</label>
-        <input type="number" name="fineagg" placeholder="e.g. 800" step="0.01" required>
-        
-        <label>Age (days)</label>
-        <input type="number" name="age" placeholder="e.g. 28" required>
-        
-        <button type="submit">Predict Strength</button>
-    </form>
-    
-    {% if prediction %}
-    <div class="result">
-        <h3>Predicted Compressive Strength: {{ prediction }} MPa</h3>
+<div class="container">
+
+    <div class="header">
+        <div class="badge">ML-Powered · XGBoost · R² 0.93</div>
+        <h1>Concrete <span>Strength</span><br>Estimator</h1>
+        <p class="subtitle">Predict compressive strength from material composition — reducing 28-day lab testing time and cost.</p>
     </div>
-    {% endif %}
+
+    <div class="stats-bar">
+        <div class="stat">
+            <div class="stat-value">0.93</div>
+            <div class="stat-label">R² Score</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">4.49</div>
+            <div class="stat-label">RMSE (MPa)</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">1005</div>
+            <div class="stat-label">Training Samples</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">XGB</div>
+            <div class="stat-label">Model</div>
+        </div>
+    </div>
+
+    <div class="main-grid">
+
+        <!-- Input Card -->
+        <div class="card">
+            <div class="card-title">Mix Composition Inputs</div>
+            <form method="POST" action="/predict">
+                <div class="field">
+                    <label>Cement (kg/m³)</label>
+                    <input type="number" name="cement" placeholder="e.g. 300" step="0.01" required>
+                </div>
+                <div class="field">
+                    <label>Blast Furnace Slag (kg/m³)</label>
+                    <input type="number" name="slag" placeholder="e.g. 100" step="0.01" required>
+                </div>
+                <div class="field">
+                    <label>Fly Ash (kg/m³)</label>
+                    <input type="number" name="ash" placeholder="e.g. 50" step="0.01" required>
+                </div>
+                <div class="field">
+                    <label>Water (kg/m³)</label>
+                    <input type="number" name="water" placeholder="e.g. 180" step="0.01" required>
+                </div>
+                <div class="field">
+                    <label>Superplasticizer (kg/m³)</label>
+                    <input type="number" name="superplastic" placeholder="e.g. 10" step="0.01" required>
+                </div>
+                <div class="field">
+                    <label>Coarse Aggregate (kg/m³)</label>
+                    <input type="number" name="coarseagg" placeholder="e.g. 970" step="0.01" required>
+                </div>
+                <div class="field">
+                    <label>Fine Aggregate (kg/m³)</label>
+                    <input type="number" name="fineagg" placeholder="e.g. 800" step="0.01" required>
+                </div>
+                <div class="field">
+                    <label>Age (days)</label>
+                    <input type="number" name="age" placeholder="e.g. 28" required>
+                </div>
+                <button type="submit">Estimate Strength →</button>
+            </form>
+        </div>
+
+        <!-- Result Card -->
+        <div class="card">
+            <div class="card-title">Prediction Result</div>
+            <div class="result-panel">
+
+                <div class="result-main">
+                    {% if prediction %}
+                        <div class="result-label">Compressive Strength</div>
+                        <div class="result-value">{{ prediction }}</div>
+                        <div class="result-unit">MPa</div>
+
+                        {% if prediction < 20 %}
+                            <div class="grade-badge grade-weak">⚠ Weak Concrete</div>
+                        {% elif prediction < 35 %}
+                            <div class="grade-badge grade-moderate">◎ Moderate — M25 Grade</div>
+                        {% elif prediction < 50 %}
+                            <div class="grade-badge grade-standard">✓ Standard — M35 Grade</div>
+                        {% else %}
+                            <div class="grade-badge grade-strong">★ High Strength — M50+</div>
+                        {% endif %}
+                    {% else %}
+                        <div class="result-empty">Enter mix composition<br>to estimate strength</div>
+                    {% endif %}
+                </div>
+
+                {% if prediction %}
+                <div class="grade-bar">
+                    <div class="grade-title">Strength Scale (MPa)</div>
+                    <div class="grade-track">
+                        <div class="grade-fill" style="width: {{ [prediction / 80 * 100, 100] | min }}%"></div>
+                    </div>
+                    <div class="grade-labels">
+                        <span>0</span><span>20</span><span>40</span><span>60</span><span>80+</span>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-key">Model</div>
+                        <div class="info-val">XGBoost</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-key">Confidence</div>
+                        <div class="info-val">R² 0.93</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-key">Error Range</div>
+                        <div class="info-val">±4.49 MPa</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-key">Status</div>
+                        <div class="info-val" style="color: var(--green);">✓ Live</div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-key">Top Feature</div>
+                        <div class="info-val">Age</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-key">Algorithm</div>
+                        <div class="info-val">XGBoost</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-key">Tuning</div>
+                        <div class="info-val">GridSearchCV</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-key">Dataset</div>
+                        <div class="info-val">1005 rows</div>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Built with <span>XGBoost + Flask</span> · Deployed on Render · Portfolio Project
+    </div>
+
+</div>
 </body>
 </html>
