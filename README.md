@@ -12,6 +12,19 @@ Concrete compressive strength testing in civil engineering requires 28 days of p
 
 ---
 
+## 📸 Screenshots
+
+### Flask App UI
+![App UI](screenshots/app_ui.png)
+
+### SHAP Feature Importance
+![SHAP](screenshots/shap_plot.png)
+
+### Actual vs Predicted
+![Actual vs Predicted](screenshots/actual_vs_predicted.png)
+
+---
+
 ## 📊 Dataset
 - **Source:** UCI Machine Learning Repository
 - **Size:** 1030 rows, 8 features, 1 target
@@ -29,6 +42,7 @@ Concrete compressive strength testing in civil engineering requires 28 days of p
 | Skewness Treatment | log1p on age (3.25 → 0.006) |
 | Scaling | StandardScaler |
 | Models Compared | Linear Regression, Decision Tree, Random Forest, XGBoost |
+| Explainability | SHAP values used to interpret feature influence on predictions |
 | Best Model | XGBoost (Hypertuned with GridSearchCV) |
 
 ---
@@ -48,7 +62,7 @@ Concrete compressive strength testing in civil engineering requires 28 days of p
 - **Age** is the most important feature — concrete gains strength through hydration over time
 - **Cement** content is the strongest ingredient predictor
 - Nonlinear ensemble models significantly outperform linear regression
-- Water-cement ratio is the critical engineering factor for concrete durability
+- Water-cement ratio is the critical engineering factor affecting durability and compressive strength
 
 ---
 
@@ -60,21 +74,34 @@ Concrete compressive strength testing in civil engineering requires 28 days of p
 ---
 
 ## 🛠️ Tech Stack
-![Python](https://img.shields.io/badge/Python-3.14-blue)
-![XGBoost](https://img.shields.io/badge/XGBoost-Tuned-orange)
-![Flask](https://img.shields.io/badge/Flask-3.1-green)
-![Render](https://img.shields.io/badge/Deployed-Render-purple)
+- Python
+- Pandas
+- Scikit-learn
+- XGBoost
+- SHAP
+- Flask
+- Render
 
 ---
 
 ## 📁 Project Structure
 
     app.py                                → Flask application
-    concrete_model.pkl                    → Trained XGBoost model  
+    concrete_model.pkl                    → Trained XGBoost model
     concrete_scaler.pkl                   → StandardScaler
     requirements.txt                      → Dependencies
     templates/index.html                  → Frontend UI
     concrete_strength_prediction.ipynb    → Full notebook
+    screenshots/                          → App and plot screenshots
+
+---
+
+## 🔮 Future Improvements
+- Add CI/CD pipeline for automated deployment
+- Docker containerization
+- Real-time concrete mix optimization recommendations
+- Pipeline-based preprocessing with sklearn Pipeline
+- API endpoint for integration with construction management systems
 
 ---
 
